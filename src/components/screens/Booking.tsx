@@ -9,6 +9,7 @@ import { Heatmap, Picked, TimeChips } from "../Heatmap";
 import { Flag, OkCheck } from "../Illustration";
 import { Icon, type IconName } from "../Icons";
 import { Portrait, Star1 } from "../Portrait";
+import { appScrollTo } from "@/lib/native";
 import { AppBar, ChipGroup, ChipMulti, Crumb, Guar, Tog } from "../ui";
 import { Desktop } from "../Variant";
 
@@ -340,7 +341,7 @@ export function BookingFlow({ slug }: { slug: string }) {
   const n: Step = s.bookTutor === t.id ? s.bookStep : 1;
   const setStep = (k: Step) => {
     update((st) => ({ ...st, tutor: t.id, bookTutor: t.id, bookStep: k, booked: k === 4 ? true : st.booked }));
-    if (typeof window !== "undefined") window.scrollTo({ top: 0 });
+    if (typeof window !== "undefined") appScrollTo(0);
   };
   const body =
     n === 1 ? <Step1 t={t} next={() => setStep(2)} /> : n === 2 ? <Step2 t={t} next={() => setStep(3)} /> : n === 3 ? <Step3 t={t} next={() => setStep(4)} /> : <Step4 t={t} />;

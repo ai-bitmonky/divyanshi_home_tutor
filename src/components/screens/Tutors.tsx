@@ -13,6 +13,7 @@ import { Avatar } from "../Portrait";
 import { Skeletons } from "../Skeleton";
 import { useToast } from "../Toast";
 import { TutorCard } from "../TutorCard";
+import { TabHead } from "../ui";
 import { Desktop, Mobile } from "../Variant";
 
 /** Applies ?subject=&board=&cls=&locality=&mode= deep links (hero search pill) to the filters, once state is hydrated. */
@@ -207,15 +208,15 @@ function MobileTutors() {
   const n = filterTutors(s.f).length;
   return (
     <div className="m-wrap">
-      <div className="m-home-top">
-        <div className="row between" style={{ marginBottom: 14 }}>
-          <Link href="/" className="logo" aria-label="TutorForMe home">
-            Tutor<span>For</span>Me
-          </Link>
+      <TabHead
+        title="Find tutors"
+        actions={
           <button type="button" className="icbtn" aria-label="Notifications" onClick={() => toast("No new notifications", "bell")}>
-            <Icon name="bell" size={20} />
+            <Icon name="bell" size={22} />
           </button>
-        </div>
+        }
+      />
+      <div className="m-home-top">
         <button type="button" className="det-row" aria-expanded={s.details} onClick={() => set({ details: !s.details })}>
           <span className="pinb">
             <Icon name="pin" size={20} />

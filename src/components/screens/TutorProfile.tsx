@@ -9,15 +9,72 @@ import { Heatmap, NextSlotChips, Picked, TimeChips } from "../Heatmap";
 import { Icon, type IconName } from "../Icons";
 import { Avatar, Portrait, Star1, Stars } from "../Portrait";
 import { RatingBars } from "../RatingBars";
+import { appScrollToEl } from "@/lib/native";
+import { Sheet } from "../Sheet";
 import { AppBar, Crumb, Guar } from "../ui";
 import type { Tutor } from "@/lib/data";
 import { Desktop, Mobile } from "../Variant";
 
 function scrollToId(id: string) {
   const el = document.getElementById(id);
-  if (!el) return;
-  const rm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 84, behavior: rm ? "auto" : "smooth" });
+  if (el) appScrollToEl(el, 84);
+}
+
+/** Mobile share / message sheet for a tutor */
+function ShareSheet({ t, open, onClose }: { t: Tutor; open: boolean; onClose: () => void }) {
+  const { chatWith, toast } = useActions();
+  const url = typeof window !== "undefined" ? `${window.location.origin}/tutors/${t.slug}` : `/tutors/${t.slug}`;
+  const rows: [IconName, string, string, () => void][] = [
+    ["chat", `Message ${t.first}`, `Usually replies in ${t.replyTime}`, () => chatWith(t)],
+    [
+      "clip",
+      "Copy link",
+      url.replace(/^https?:\/\//, ""),
+      () => {
+        navigator.clipboard?.writeText(url).catch(() => {});
+        toast("Profile link copied", "check");
+      },
+    ],
+    [
+      "share",
+      "Share via…",
+      "WhatsApp, SMS, email",
+      () => {
+        if (navigator.share) navigator.share({ title: `${t.name} · TutorForMe`, url }).catch(() => {});
+        else toast("Profile link copied", "share");
+      },
+    ],
+  ];
+  return (
+    <Sheet open={open} onClose={onClose} title={`Share ${t.first}'s profile`}>
+      {(close) => (
+        <div className="list ins">
+          {rows.map(([i, l, sub, act]) => (
+            <button
+              key={l}
+              type="button"
+              className="lrow"
+              onClick={() => {
+                close();
+                window.setTimeout(act, 230);
+              }}
+            >
+              <span className="lic">
+                <Icon name={i} size={18} />
+              </span>
+              <span className="lt">
+                {l}
+                <small>{sub}</small>
+              </span>
+              <span className="chev">
+                <Icon name="chevR" size={18} />
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </Sheet>
+  );
 }
 
 /** Intro video (16:9) placeholder — click to "play" with a fake progress bar */
@@ -68,7 +125,8 @@ function IntroVideo({ t }: { t: Tutor }) {
 
 function ProfHead({ t }: { t: Tutor }) {
   const { s } = useApp();
-  const { toggleFav, toast } = useActions();
+  const { toggleFav } = useActions();
+  const [share, setShare] = useState(false);
   const fav = !!s.favs[t.id];
   return (
     <>
@@ -111,10 +169,11 @@ function ProfHead({ t }: { t: Tutor }) {
               <button type="button" className={`icbtn${fav ? " on" : ""}`} aria-pressed={fav} aria-label="Save tutor" onClick={() => toggleFav(t.id)}>
                 <Icon name={fav ? "heartF" : "heart"} size={19} />
               </button>
-              <button type="button" className="icbtn" aria-label="Share profile" onClick={() => toast("Profile link copied", "share")}>
+              <button type="button" className="icbtn" aria-label="Share or message" aria-haspopup="dialog" onClick={() => setShare(true)}>
                 <Icon name="share" size={19} />
               </button>
             </div>
+            <ShareSheet t={t} open={share} onClose={() => setShare(false)} />
           </Mobile>
         </div>
       </div>

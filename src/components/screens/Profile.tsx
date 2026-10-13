@@ -8,6 +8,7 @@ import { useApp } from "@/lib/store";
 import { Flag } from "../Illustration";
 import { Icon, type IconName } from "../Icons";
 import { Avatar } from "../Portrait";
+import { ActionSheet, Sheet } from "../Sheet";
 import { TabHead } from "../ui";
 import { Desktop, Mobile } from "../Variant";
 
@@ -405,11 +406,85 @@ function GuestLine({ center = false }: { center?: boolean }) {
   );
 }
 
+/** Mobile settings: grouped inset lists with iOS switches */
+function SettingsSheet({ open, onClose, onSignOut }: { open: boolean; onClose: () => void; onSignOut: () => void }) {
+  const { s } = useApp();
+  const { toast } = useActions();
+  const prefs: [PrefKey, IconName, string][] = [
+    ["sms", "bell", "Class reminders by SMS"],
+    ["wa", "chat", "WhatsApp updates"],
+    ["mail", "mail", "Email newsletter"],
+    ["report", "trend", "Weekly progress report"],
+  ];
+  return (
+    <Sheet open={open} onClose={onClose} title="Settings" full right={(c) => (
+      <button type="button" className="msh-link b" onClick={c}>
+        Done
+      </button>
+    )}>
+      {(close) => (
+        <>
+          <div className="ovl ins-h">Notifications</div>
+          <div className="list ins">
+            {prefs.map(([k, i, l]) => (
+              <div key={k} className="lrow">
+                <span className="lic">
+                  <Icon name={i} size={18} />
+                </span>
+                <span className="lt">{l}</span>
+                <Switch k={k} label={l} />
+              </div>
+            ))}
+          </div>
+          <div className="ovl ins-h">App</div>
+          <div className="list ins">
+            <button type="button" className="lrow" onClick={() => toast("Language: English", "globe")}>
+              <span className="lic">
+                <Icon name="globe" size={18} />
+              </span>
+              <span className="lt">Language</span>
+              <span className="lv">English</span>
+              <span className="chev">
+                <Icon name="chevR" size={18} />
+              </span>
+            </button>
+            <button type="button" className="lrow" onClick={() => toast("Help centre opened", "info")}>
+              <span className="lic">
+                <Icon name="info" size={18} />
+              </span>
+              <span className="lt">Help &amp; support</span>
+              <span className="chev">
+                <Icon name="chevR" size={18} />
+              </span>
+            </button>
+          </div>
+          {s.loggedIn && (
+            <div className="list ins" style={{ marginTop: 22 }}>
+              <button
+                type="button"
+                className="lrow danger"
+                onClick={() => {
+                  close();
+                  window.setTimeout(onSignOut, 230);
+                }}
+              >
+                <span className="lt">Sign Out</span>
+              </button>
+            </div>
+          )}
+          <div className="ver">TUTORFORME v2.0</div>
+        </>
+      )}
+    </Sheet>
+  );
+}
+
 export function ProfileScreen() {
   const { s, update } = useApp();
-  const { toast } = useActions();
   const signOut = useSignOut();
   const [openRow, setOpenRow] = useState<string | null>(null);
+  const [settings, setSettings] = useState(false);
+  const [askOut, setAskOut] = useState(false);
   const tab = s.pf.tab;
   return (
     <>
@@ -464,11 +539,19 @@ export function ProfileScreen() {
         <div>
           <TabHead
             title="My Profile"
-            right={
-              <button type="button" className="icbtn" aria-label="Settings" onClick={() => toast("Settings", "sliders")}>
-                <Icon name="sliders" size={19} />
+            actions={
+              <button type="button" className="icbtn" aria-label="Settings" aria-haspopup="dialog" onClick={() => setSettings(true)}>
+                <Icon name="sliders" size={21} />
               </button>
             }
+          />
+          <SettingsSheet open={settings} onClose={() => setSettings(false)} onSignOut={() => setAskOut(true)} />
+          <ActionSheet
+            open={askOut}
+            onClose={() => setAskOut(false)}
+            title="Sign out of TutorForMe?"
+            message="Your shortlist and booking drafts on this phone will be cleared."
+            actions={[{ label: "Sign Out", destructive: true, onClick: signOut }]}
           />
           <div className="m-wrap">
             <div className="pf-head">
@@ -517,7 +600,7 @@ export function ProfileScreen() {
                 </div>
               ))}
               {s.loggedIn && (
-                <button type="button" className="signout" onClick={signOut}>
+                <button type="button" className="signout" aria-haspopup="dialog" onClick={() => setAskOut(true)}>
                   <Icon name="logout" size={18} /> Sign Out
                 </button>
               )}

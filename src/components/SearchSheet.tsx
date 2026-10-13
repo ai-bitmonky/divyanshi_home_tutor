@@ -6,6 +6,7 @@ import { LOCALITIES, SUBJECTS, filterTutors } from "@/lib/data";
 import { useApp } from "@/lib/store";
 import { FILTER_RESET } from "./Filters";
 import { Icon } from "./Icons";
+import { Sheet } from "./Sheet";
 import { useToast } from "./Toast";
 import { Button, ChipGroup, Tog } from "./ui";
 import { Mobile } from "./Variant";
@@ -24,28 +25,22 @@ export function SearchSheet() {
   const open = s.searchSheet;
 
   useEffect(() => {
-    if (!open) return;
-    q.current?.focus({ preventScroll: true });
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && set({ searchSheet: false });
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, set]);
+    if (open) q.current?.focus({ preventScroll: true });
+  }, [open]);
 
-  if (!open) return null;
   const f = s.f;
   const n = filterTutors(f).length;
   return (
     <Mobile>
-      <div className="fsheet" role="dialog" aria-modal="true" aria-labelledby="msT">
-        <div className="appbar">
-          <button type="button" className="icbtn" aria-label="Close search" onClick={() => set({ searchSheet: false })}>
-            <Icon name="x" size={20} />
-          </button>
-          <h1 id="msT">Find a tutor</h1>
+      <Sheet
+        open={open}
+        onClose={() => set({ searchSheet: false })}
+        full
+        title="Find a tutor"
+        left={
           <button
             type="button"
-            className="link"
-            style={{ padding: 8 }}
+            className="msh-link"
             onClick={() => {
               set({ f: { ...f, ...FILTER_RESET } });
               toast("Filters reset", "refresh");
@@ -53,9 +48,25 @@ export function SearchSheet() {
           >
             Reset
           </button>
-        </div>
-        <div className="fs-scroll">
-          <div className="px pb">
+        }
+        right={(close) => (
+          <button type="button" className="msh-x" aria-label="Close search" onClick={close}>
+            <Icon name="x" size={18} stroke={2.2} />
+          </button>
+        )}
+        footer={(close) => (
+          <Button
+            block
+            onClick={() => {
+              close();
+              router.push("/tutors");
+            }}
+          >
+            {n ? `Show ${n} tutor${n === 1 ? "" : "s"}` : "No tutors — widen search"}
+          </Button>
+        )}
+      >
+        <div className="pb">
             <div className="f-sec">
               <div className="iw">
                 <Icon name="search" size={18} />
@@ -93,19 +104,7 @@ export function SearchSheet() {
               />
             </div>
           </div>
-        </div>
-        <div className="mbot static">
-          <Button
-            block
-            onClick={() => {
-              set({ searchSheet: false });
-              router.push("/tutors");
-            }}
-          >
-            {n ? `Show ${n} tutor${n === 1 ? "" : "s"}` : "No tutors — widen search"}
-          </Button>
-        </div>
-      </div>
+      </Sheet>
     </Mobile>
   );
 }

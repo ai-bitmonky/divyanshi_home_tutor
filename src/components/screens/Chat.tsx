@@ -5,10 +5,11 @@ import { useEffect, useRef, useState } from "react";
 import { REPLIES, type Convo } from "@/lib/data";
 import { useActions } from "@/lib/actions";
 import { DESKTOP_MQ, useViewportMode } from "@/lib/hooks";
+import { appScrollToEnd } from "@/lib/native";
 import { useApp } from "@/lib/store";
 import { Icon } from "../Icons";
 import { Avatar } from "../Portrait";
-import { TabHead, useBack } from "../ui";
+import { BackButton, TabHead, useBack } from "../ui";
 import { Desktop, Mobile } from "../Variant";
 
 function ChatHead({ c, mobile }: { c: Convo; mobile?: boolean }) {
@@ -16,11 +17,7 @@ function ChatHead({ c, mobile }: { c: Convo; mobile?: boolean }) {
   const back = useBack("/chat");
   return (
     <div className="ch-head">
-      {mobile && (
-        <button type="button" className="icbtn flat" aria-label="Go back" onClick={back}>
-          <Icon name="back" size={20} />
-        </button>
-      )}
+      {mobile && <BackButton onClick={back} />}
       <Avatar ini={c.initials} size={42} g={c.g} label={c.name} />
       <div className="ct">
         <b>{c.name}</b>
@@ -159,7 +156,7 @@ export function ChatScreen({ id }: { id?: string }) {
   useEffect(() => {
     const el = thread.current;
     if (el) el.scrollTop = el.scrollHeight;
-    if (id && !window.matchMedia(DESKTOP_MQ).matches) window.scrollTo({ top: document.body.scrollHeight });
+    if (id && !window.matchMedia(DESKTOP_MQ).matches) appScrollToEnd();
   }, [count, key, id, mode]);
 
   return (

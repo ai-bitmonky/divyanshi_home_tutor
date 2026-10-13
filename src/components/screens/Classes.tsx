@@ -241,11 +241,23 @@ function RoleTog() {
   );
 }
 
+/** Mobile: Parent ↔ Student as an iOS switch beside the large title */
+function RoleSwitch() {
+  const { s, set } = useApp();
+  const on = s.role === "student";
+  return (
+    <label className="m-swrow">
+      <span>Student view</span>
+      <button type="button" className={`switch${on ? " on" : ""}`} role="switch" aria-checked={on} aria-label="Student view" onClick={() => set({ role: on ? "parent" : "student" })} />
+    </label>
+  );
+}
+
 export function ClassesScreen() {
   const { s } = useApp();
   return (
     <>
-      <TabHead title="Classes" right={<RoleTog />} />
+      <TabHead title="Classes" right={<RoleSwitch />} />
       <div className="wrap">
         <Desktop>
           <div className="row between" style={{ marginBottom: 24, flexWrap: "wrap", alignItems: "flex-end" }}>

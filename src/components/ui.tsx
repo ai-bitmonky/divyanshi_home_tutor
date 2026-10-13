@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Fragment, type ButtonHTMLAttributes, type ReactNode } from "react";
+import { Fragment, useEffect, useRef, type ButtonHTMLAttributes, type ReactNode, type RefObject } from "react";
+import { scroller } from "@/lib/native";
 import { Icon, type IconName } from "./Icons";
 import { Desktop, Mobile } from "./Variant";
 
@@ -112,30 +113,77 @@ export function useBack(fallback: string) {
   };
 }
 
-/** Mobile app bar: back + title + optional right slot */
+/** Toggles `.collapsed` on a mobile nav bar once the live screen has scrolled past `y` (no re-renders) */
+function useNavCollapse(ref: RefObject<HTMLDivElement | null>, y: number) {
+  useEffect(() => {
+    const bar = ref.current;
+    const sc = scroller();
+    if (!bar || !sc) return;
+    const on = () => bar.classList.toggle("collapsed", sc.scrollTop > y);
+    on();
+    sc.addEventListener("scroll", on, { passive: true });
+    return () => sc.removeEventListener("scroll", on);
+  }, [ref, y]);
+}
+
+/**
+ * Mobile navigation bar, fixed under the status bar (iOS style).
+ * `large`: tab roots — a 30px large title scrolls with the content and the bar shows a centred
+ * 17px title + hairline once it has scrolled past 40px. Otherwise a compact sub-screen bar.
+ */
+export function NavBar({ title, left, right, large = false, aside }: { title?: ReactNode; left?: ReactNode; right?: ReactNode; large?: boolean; aside?: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useNavCollapse(ref, large ? 40 : 2);
+  return (
+    <>
+      <div className={`m-nav${large ? " lt" : " sub"}`} ref={ref}>
+        <div className="m-nav-in">
+          <span className="m-nav-l">{left}</span>
+          {large ? (
+            <span className="m-nav-t" aria-hidden="true">
+              {title}
+            </span>
+          ) : (
+            <h1 className="m-nav-t">{title}</h1>
+          )}
+          <span className="m-nav-r">{right}</span>
+        </div>
+      </div>
+      <div className="m-nav-sp" aria-hidden="true" />
+      {large && (
+        <div className="m-lt">
+          <h1>{title}</h1>
+          {aside}
+        </div>
+      )}
+    </>
+  );
+}
+
+/** iOS back chevron; `data-back` lets the edge-swipe gesture trigger the same back logic */
+export function BackButton({ onClick, label = "Go back" }: { onClick: () => void; label?: string }) {
+  return (
+    <button type="button" className="m-back" aria-label={label} data-back="" onClick={onClick}>
+      <Icon name="chevL" size={28} stroke={2.2} />
+    </button>
+  );
+}
+
+/** Mobile sub-screen bar: back chevron + centred title + optional right slot */
 export function AppBar({ title, back = "/tutors", right }: { title: ReactNode; back?: string; right?: ReactNode }) {
   const goBack = useBack(back);
   return (
     <Mobile>
-      <div className="appbar">
-        <button type="button" className="icbtn" aria-label="Go back" onClick={goBack}>
-          <Icon name="back" size={20} />
-        </button>
-        <h1>{title}</h1>
-        {right}
-      </div>
+      <NavBar title={title} left={<BackButton onClick={goBack} />} right={right} />
     </Mobile>
   );
 }
 
-/** Mobile tab-page header (large title) */
-export function TabHead({ title, right }: { title: string; right?: ReactNode }) {
+/** Mobile tab-root header: large title (`right` sits beside it) that collapses into the bar; `actions` = bar buttons */
+export function TabHead({ title, right, actions }: { title: string; right?: ReactNode; actions?: ReactNode }) {
   return (
     <Mobile>
-      <div className="appbar tabhead">
-        <h1>{title}</h1>
-        {right}
-      </div>
+      <NavBar large title={title} aside={right} right={actions} />
     </Mobile>
   );
 }

@@ -9,7 +9,7 @@ import { useApp } from "@/lib/store";
 import { OkCheck } from "../Illustration";
 import { Icon, type IconName } from "../Icons";
 import { Portrait } from "../Portrait";
-import { AppBar, Crumb, Guar, Spinner } from "../ui";
+import { AppBar, Crumb, Guar, NavBar, Spinner } from "../ui";
 import { Desktop, Mobile } from "../Variant";
 
 /* ---------------- Plans ---------------- */
@@ -366,11 +366,13 @@ export function PaidScreen() {
   return (
     <>
       <Mobile>
-        <div className="appbar" style={{ justifyContent: "flex-end" }}>
-          <Link href="/classes" className="icbtn" aria-label="Close">
-            <Icon name="x" size={20} />
-          </Link>
-        </div>
+        <NavBar
+          right={
+            <Link href="/classes" className="icbtn" aria-label="Close">
+              <Icon name="x" size={22} />
+            </Link>
+          }
+        />
       </Mobile>
       <div className="wrap">
         <div className="d-cf">

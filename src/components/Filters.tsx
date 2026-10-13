@@ -3,7 +3,9 @@
 import { useId } from "react";
 import { LOCALITIES, SORTS, SUBJECTS, filterTutors, inr, type Filters } from "@/lib/data";
 import { useApp } from "@/lib/store";
+import { appScrollTo } from "@/lib/native";
 import { Icon } from "./Icons";
+import { Sheet } from "./Sheet";
 import { useToast } from "./Toast";
 import { Button, ChipGroup, Tog } from "./ui";
 import { Mobile } from "./Variant";
@@ -14,6 +16,14 @@ const CLASSES = ["Any", "6–8", "9–10", "11–12"] as const;
 const GENDERS = ["Any", "Male", "Female"] as const;
 const LANGS = ["Any", "English", "Hindi"] as const;
 const SUBJ_ALL = ["", ...SUBJECTS];
+/** short labels for the mobile segmented control */
+const SORT_SEG: readonly (readonly [Filters["sort"], "", string])[] = [
+  ["rec", "", "Best"],
+  ["near", "", "Nearest"],
+  ["rating", "", "Rating"],
+  ["low", "", "₹ Low"],
+  ["high", "", "₹ High"],
+];
 const MODES = [
   ["Home", "home"],
   ["Online", "video"],
@@ -135,42 +145,47 @@ export function FiltersBody({ variant }: { variant: "desktop" | "mobile" }) {
         <span className="lbl">Teaches in</span>
         <ChipGroup items={LANGS} value={f.lang as (typeof LANGS)[number]} onChange={(v) => setF("lang", v, "flip")} ariaLabel="Teaches in" />
       </div>
-      <div className="f-sec" style={{ marginBottom: d ? 0 : 22 }}>
-        <label className="lbl" htmlFor={`${uid}-sort`}>
-          Sort
-        </label>
-        <select id={`${uid}-sort`} className={`inp${d ? "" : " w"}`} value={f.sort} onChange={(e) => setF("sort", e.target.value as Filters["sort"], "flip")}>
-          {SORTS.map(([v, l]) => (
-            <option key={v} value={v}>
-              {l}
-            </option>
-          ))}
-        </select>
-      </div>
+      {d ? (
+        <div className="f-sec" style={{ marginBottom: 0 }}>
+          <label className="lbl" htmlFor={`${uid}-sort`}>
+            Sort
+          </label>
+          <select id={`${uid}-sort`} className="inp" value={f.sort} onChange={(e) => setF("sort", e.target.value as Filters["sort"], "flip")}>
+            {SORTS.map(([v, l]) => (
+              <option key={v} value={v}>
+                {l}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : (
+        <div className="f-sec" style={{ marginBottom: 22 }}>
+          <span className="lbl">Sort by</span>
+          <Tog items={SORT_SEG} value={f.sort} onChange={(v) => setF("sort", v, "flip")} className="full seg5" ariaLabel="Sort by" />
+        </div>
+      )}
     </>
   );
 }
 
 const RESET: Partial<Filters> = { q: "", subject: "", price: 1000, mode: "Both", locality: "Sector 56", dist: "5", board: "Any", cls: "Any", gender: "Any", lang: "Any", sort: "rec" };
 
-/** Mobile "Search" tab: full-height filter sheet over Find tutors */
+/** Mobile "Search" tab: tall bottom sheet over Find tutors */
 export function FiltersSheet() {
   const { s, set } = useApp();
   const toast = useToast();
-  if (!s.filtersOpen) return null;
   const n = filterTutors(s.f).length;
   return (
     <Mobile>
-      <div className="fsheet" role="dialog" aria-modal="true" aria-labelledby="fsT">
-        <div className="appbar" style={{ paddingLeft: 20 }}>
-          <button type="button" className="icbtn" aria-label="Close filters" onClick={() => set({ filtersOpen: false })}>
-            <Icon name="x" size={20} />
-          </button>
-          <h1 id="fsT">Search</h1>
+      <Sheet
+        open={s.filtersOpen}
+        onClose={() => set({ filtersOpen: false })}
+        full
+        title="Search & filters"
+        left={
           <button
             type="button"
-            className="link"
-            style={{ padding: 8 }}
+            className="msh-link"
             onClick={() => {
               set({ f: { ...s.f, ...RESET } });
               toast("Filters reset", "refresh");
@@ -178,25 +193,27 @@ export function FiltersSheet() {
           >
             Reset
           </button>
-        </div>
-        <div className="fs-scroll">
-          <div className="px" style={{ paddingTop: 4 }}>
-            <FiltersBody variant="mobile" />
-          </div>
-        </div>
-        <div className="mbot static">
+        }
+        right={(close) => (
+          <button type="button" className="msh-x" aria-label="Close filters" onClick={close}>
+            <Icon name="x" size={18} stroke={2.2} />
+          </button>
+        )}
+        footer={(close) => (
           <Button
             block
             onClick={() => {
-              set({ filtersOpen: false });
+              close();
               toast(`${n} tutor${n === 1 ? "" : "s"} match your filters`, "search");
-              window.scrollTo({ top: 0 });
+              appScrollTo(0, true);
             }}
           >
             {n ? `Show ${n} tutor${n === 1 ? "" : "s"}` : "No tutors — widen search"}
           </Button>
-        </div>
-      </div>
+        )}
+      >
+        <FiltersBody variant="mobile" />
+      </Sheet>
     </Mobile>
   );
 }

@@ -6,9 +6,12 @@ import { Suspense, type ReactNode } from "react";
 import { tutorById } from "@/lib/data";
 import { useActions } from "@/lib/actions";
 import { useScrolled } from "@/lib/hooks";
+import { TAB_ROUTES, appScrollTo, haptic } from "@/lib/native";
 import { useApp } from "@/lib/store";
 import { Icon, type IconName } from "./Icons";
 import { Avatar } from "./Portrait";
+import { InstallBanner, NativeChrome } from "./NativeChrome";
+import { MobileScreen, ScreenNav } from "./Screen";
 import { SignupModal } from "./SignupModal";
 import { Desktop, Mobile } from "./Variant";
 import { useToast } from "./Toast";
@@ -134,8 +137,6 @@ function DesktopNav() {
   );
 }
 
-const TAB_ROUTES = ["/tutors", "/location", "/classes", "/profile", "/ai", "/chat"];
-
 /** Mobile bottom tab bar — 64px, 5 items, filled icon + label when active, teal dot for unread */
 function TabBar() {
   const pathname = usePathname();
@@ -182,12 +183,29 @@ function TabBar() {
             href={it.href}
             className={`tab${it.on ? " on" : ""}`}
             aria-current={it.on ? "page" : undefined}
-            onClick={() => s.filtersOpen && set({ filtersOpen: false })}
+            onClick={(e) => {
+              haptic();
+              if (s.filtersOpen) set({ filtersOpen: false });
+              /* re-tapping the active tab scrolls it back to the top (native tab navigators) */
+              if (it.on && pathname === it.href) {
+                e.preventDefault();
+                appScrollTo(0, true);
+              }
+            }}
           >
             {inner}
           </Link>
         ) : (
-          <button key={it.id} type="button" className={`tab${it.on ? " on" : ""}`} aria-current={it.on ? "page" : undefined} onClick={it.onClick}>
+          <button
+            key={it.id}
+            type="button"
+            className={`tab${it.on ? " on" : ""}`}
+            aria-current={it.on ? "page" : undefined}
+            onClick={() => {
+              haptic();
+              it.onClick?.();
+            }}
+          >
             {inner}
           </button>
         );
@@ -209,14 +227,24 @@ export function AppShell({ children }: { children: ReactNode }) {
         </Desktop>
       </Suspense>
       <main id="main" className="app-main">
-        {children}
+        {/* mobile: fixed screen layer + its own scroll container (display:contents on desktop) */}
+        <MobileScreen>{children}</MobileScreen>
       </main>
+      <Suspense fallback={null}>
+        <ScreenNav />
+      </Suspense>
       <Suspense fallback={null}>
         <Mobile>
           <TabBar />
         </Mobile>
       </Suspense>
+      <Suspense fallback={null}>
+        <Mobile>
+          <InstallBanner />
+        </Mobile>
+      </Suspense>
       <SignupModal />
+      <NativeChrome />
     </>
   );
 }

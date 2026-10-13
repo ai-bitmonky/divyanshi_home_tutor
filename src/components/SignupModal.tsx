@@ -8,6 +8,7 @@ import { Flag } from "./Illustration";
 import { Icon } from "./Icons";
 import { OtpBoxes, ResendTimer } from "./Otp";
 import { Avatar } from "./Portrait";
+import { Sheet } from "./Sheet";
 import { useToast } from "./Toast";
 import { Desktop, Mobile } from "./Variant";
 
@@ -188,9 +189,11 @@ export function SignupModal() {
   const { s, update } = useApp();
   const a = s.auth;
   const box = useRef<HTMLDivElement>(null);
+  const close = () => update((st) => ({ ...st, auth: { ...st.auth, open: false, next: undefined } }));
 
+  /* desktop modal: Escape, focus, page scroll lock (the mobile Sheet does its own) */
   useEffect(() => {
-    if (!a.open) return;
+    if (!a.open || !box.current) return;
     const close = () => update((st) => ({ ...st, auth: { ...st.auth, open: false, next: undefined } }));
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
     window.addEventListener("keydown", onKey);
@@ -205,22 +208,42 @@ export function SignupModal() {
   }, [a.open, a.step, update]);
 
   if (!a.open) return null;
-  const close = () => update((st) => ({ ...st, auth: { ...st.auth, open: false, next: undefined } }));
   const label = a.step === "signup" ? "suT" : a.step === "otp" ? "otpT2" : "lsT";
+  const steps = (
+    <>
+      {a.step === "signup" && <SignupCard />}
+      {a.step === "otp" && <OtpStep />}
+      {a.step === "login" && <LoginStep />}
+    </>
+  );
   return (
-    <div className="ov">
-      <div className="scrim" onClick={close} aria-hidden="true" />
-      <div className="modal sheet-m" role="dialog" aria-modal="true" aria-labelledby={label} ref={box}>
-        <Mobile>
-          <div className="grab" aria-hidden="true" />
-        </Mobile>
-        <button type="button" className="icbtn flat x" aria-label="Close" onClick={close}>
-          <Icon name="x" size={18} />
-        </button>
-        {a.step === "signup" && <SignupCard />}
-        {a.step === "otp" && <OtpStep />}
-        {a.step === "login" && <LoginStep />}
-      </div>
-    </div>
+    <>
+      <Desktop>
+        <div className="ov">
+          <div className="scrim" onClick={close} aria-hidden="true" />
+          <div className="modal sheet-m" role="dialog" aria-modal="true" aria-labelledby={label} ref={box}>
+            <button type="button" className="icbtn flat x" aria-label="Close" onClick={close}>
+              <Icon name="x" size={18} />
+            </button>
+            {steps}
+          </div>
+        </div>
+      </Desktop>
+      <Mobile>
+        <Sheet
+          open
+          onClose={close}
+          titleId={label}
+          className="msh-auth"
+          right={(c) => (
+            <button type="button" className="msh-x" aria-label="Close" onClick={c}>
+              <Icon name="x" size={18} stroke={2.2} />
+            </button>
+          )}
+        >
+          {steps}
+        </Sheet>
+      </Mobile>
+    </>
   );
 }
