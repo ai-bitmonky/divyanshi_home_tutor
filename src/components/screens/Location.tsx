@@ -8,7 +8,7 @@ import { MapApprox, MapPrecise } from "../Illustration";
 import { useToast } from "../Toast";
 import { TutorsScreen } from "./Tutors";
 
-/** Location permission dialog over Find tutors */
+/** Optional location permission dialog over Find tutors — reachable by URL only; every choice (incl. "Don't allow") continues to /tutors */
 export function LocationScreen() {
   const { s, set } = useApp();
   const router = useRouter();
@@ -17,7 +17,11 @@ export function LocationScreen() {
 
   useEffect(() => {
     box.current?.querySelector<HTMLButtonElement>(".perm-opts button")?.focus({ preventScroll: true });
-  }, []);
+    /* optional: Escape (like "Don't allow") skips straight to the tutor list */
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && router.replace("/tutors");
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [router]);
 
   const allow = (msg: string) => {
     router.replace("/tutors");

@@ -57,7 +57,7 @@ export function OtpBoxes({ initial = "482913", onEnter }: { initial?: string; on
         ))}
       </div>
       <p className="demo-note">
-        <Icon name="sparkle" size={14} /> Demo code auto-filled — any 6 digits work
+        <Icon name="sparkle" size={14} /> Demo code auto-filled — any code works, even blank
       </p>
     </>
   );

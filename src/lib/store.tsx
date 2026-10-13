@@ -28,13 +28,16 @@ export interface BookingDraft {
   mode: "Home" | "Online";
   goals: string[];
   info: string;
+  /** optional — the demo books fine without them */
+  parent: string;
   phone: string;
 }
 
 export interface AppState {
   hydrated: boolean;
   loggedIn: boolean;
-  auth: { open: boolean; step: AuthStep; kind: "demo" | "login"; email: boolean; mob: string };
+  /** sign-in is optional everywhere; `next` is where "Skip for now" / login continues to when the modal gated a navigation */
+  auth: { open: boolean; step: AuthStep; kind: "demo" | "login"; email: boolean; mob: string; next?: string };
   /* find tutors */
   f: Filters;
   /** bumps when a search/distance change should show the 400 ms skeleton */
@@ -101,7 +104,7 @@ export const initialState = (): AppState => ({
   pick: { d: 0, p: 2, t: 1 },
   favs: {},
   rvf: "All",
-  bk: { student: "Divyanshi Agrahari", cls: "Class 12", board: "CBSE", subject: "Physics", mode: "Home", goals: ["Board exam prep"], info: "", phone: "98723 46350" },
+  bk: { student: "Divyanshi Agrahari", cls: "Class 12", board: "CBSE", subject: "Physics", mode: "Home", goals: ["Board exam prep"], info: "", parent: "", phone: "" },
   bookTutor: "ashish",
   bookStep: 1,
   booked: false,

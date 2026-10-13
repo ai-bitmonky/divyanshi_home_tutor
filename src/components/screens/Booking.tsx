@@ -8,12 +8,11 @@ import { useApp, type AppState } from "@/lib/store";
 import { Heatmap, Picked, TimeChips } from "../Heatmap";
 import { Flag, OkCheck } from "../Illustration";
 import { Icon, type IconName } from "../Icons";
-import { OtpBoxes, ResendTimer } from "../Otp";
 import { Portrait, Star1 } from "../Portrait";
 import { AppBar, ChipGroup, ChipMulti, Crumb, Guar, Tog } from "../ui";
 import { Desktop } from "../Variant";
 
-const BSTEPS = ["Pick a slot", "Student details", "Verify phone", "Done"];
+const BSTEPS = ["Pick a slot", "Student details", "Confirm", "Done"];
 type Step = AppState["bookStep"];
 
 function Progress({ n }: { n: Step }) {
@@ -42,7 +41,7 @@ function SummaryChips({ n, setStep }: { n: Step; setStep: (n: Step) => void }) {
   const items: [Step, string, string][] = [
     [1, "Slot", `${dateLabel(s.pick)} · ${b.mode === "Home" ? "Home visit" : "Online"}`],
     [2, "Student", `${b.student.split(" ")[0]} · ${b.cls} · ${b.board} · ${b.subject}`],
-    [3, "Phone", `+91 ${b.phone} · verified`],
+    [3, "Contact", [b.parent.trim(), b.phone.trim() && `+91 ${b.phone.trim()}`].filter(Boolean).join(" · ") || "Not shared (optional)"],
   ];
   return (
     <div className="sumchips">
@@ -227,38 +226,65 @@ function Step2({ t, next }: { t: Tutor; next: () => void }) {
   );
 }
 
-function Step3({ next }: { next: () => void }) {
+/** Confirm — no account, no OTP: optional contact details + one tap to book */
+function Step3({ t, next }: { t: Tutor; next: () => void }) {
   const { s, update } = useApp();
   const uid = useId();
+  const b = s.bk;
+  const setBk = (patch: Partial<typeof b>) => update((st) => ({ ...st, bk: { ...st.bk, ...patch } }));
   return (
     <div className="bstep">
-      <h2>Confirm with your phone</h2>
-      <p className="muted">We send a 6-digit code to confirm the demo. No payment needed.</p>
-      <label className="lbl" htmlFor={`${uid}-ph`}>
-        Parent&apos;s mobile number
-      </label>
-      <div className="ph-inp">
-        <span className="cc">
-          <Flag /> +91
-        </span>
-        <input
-          id={`${uid}-ph`}
-          className="inp"
-          type="tel"
-          inputMode="numeric"
-          value={s.bk.phone}
-          autoComplete="tel-national"
-          onChange={(e) => update((st) => ({ ...st, bk: { ...st.bk, phone: e.target.value } }))}
-        />
+      <h2>Confirm your demo</h2>
+      <p className="muted">No account, no code, no payment. Check the details and book.</p>
+      <div className="cf-card" style={{ marginTop: 16 }}>
+        <div className="cf-row">
+          <Icon name="calendar" size={18} />
+          <span>Demo</span>
+          <b>
+            {t.first} · {b.subject} · {dateLabel(s.pick)}
+          </b>
+        </div>
       </div>
-      <p className="t-sm muted" style={{ marginTop: 14 }}>
-        Code sent to +91 {s.bk.phone}
-      </p>
-      <OtpBoxes onEnter={next} />
+      <div className="field" style={{ marginTop: 20 }}>
+        <label className="lbl" htmlFor={`${uid}-par`}>
+          Parent&apos;s name{" "}
+          <span className="muted" style={{ fontWeight: 500 }}>
+            (optional)
+          </span>
+        </label>
+        <div className="iw">
+          <Icon name="user" size={18} />
+          <input id={`${uid}-par`} className="inp" value={b.parent} autoComplete="name" placeholder="E.g. Sunita Agrahari" onChange={(e) => setBk({ parent: e.target.value })} />
+        </div>
+      </div>
+      <div className="field" style={{ marginBottom: 0 }}>
+        <label className="lbl" htmlFor={`${uid}-ph`}>
+          Mobile number{" "}
+          <span className="muted" style={{ fontWeight: 500 }}>
+            · Optional — so the tutor can reach you
+          </span>
+        </label>
+        <div className="ph-inp">
+          <span className="cc">
+            <Flag /> +91
+          </span>
+          <input
+            id={`${uid}-ph`}
+            className="inp"
+            type="tel"
+            inputMode="numeric"
+            maxLength={11}
+            placeholder="98723 46350"
+            value={b.phone}
+            autoComplete="tel-national"
+            onChange={(e) => setBk({ phone: e.target.value })}
+            onKeyDown={(e) => e.key === "Enter" && next()}
+          />
+        </div>
+      </div>
       <button type="button" className="btn btn-p btn-block btn-lg" onClick={next}>
-        <Icon name="check" size={18} stroke={2.6} /> Verify &amp; book free demo
+        <Icon name="check" size={18} stroke={2.6} /> Book free demo · ₹0
       </button>
-      <ResendTimer label="Resend code in" again="Resend code" />
     </div>
   );
 }
@@ -280,7 +306,8 @@ function Step4({ t }: { t: Tutor }) {
       <OkCheck />
       <h2>Demo booked!</h2>
       <p className="muted" style={{ marginTop: 6 }}>
-        {t.first} will confirm within {t.replyTime.replace("~", "")}. Details sent to +91 {b.phone} on WhatsApp.
+        {t.first} will confirm within {t.replyTime.replace("~", "")}.{" "}
+        {b.phone.trim() ? `Details sent to +91 ${b.phone.trim()} on WhatsApp.` : "You will see the reply in Chat."}
       </p>
       <div className="cf-card">
         {rows.map(([i, l, v]) => (
@@ -316,7 +343,7 @@ export function BookingFlow({ slug }: { slug: string }) {
     if (typeof window !== "undefined") window.scrollTo({ top: 0 });
   };
   const body =
-    n === 1 ? <Step1 t={t} next={() => setStep(2)} /> : n === 2 ? <Step2 t={t} next={() => setStep(3)} /> : n === 3 ? <Step3 next={() => setStep(4)} /> : <Step4 t={t} />;
+    n === 1 ? <Step1 t={t} next={() => setStep(2)} /> : n === 2 ? <Step2 t={t} next={() => setStep(3)} /> : n === 3 ? <Step3 t={t} next={() => setStep(4)} /> : <Step4 t={t} />;
   return (
     <div className="book-page">
       <AppBar title={n === 4 ? "Demo booked" : "Book free demo"} back={`/tutors/${t.slug}`} />

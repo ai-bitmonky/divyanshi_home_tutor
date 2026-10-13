@@ -73,8 +73,9 @@ export function useActions() {
     [s.favs, set, toast],
   );
 
-  const openAuth = useCallback((kind: "demo" | "login", step: AppState["auth"]["step"] = "signup", mob?: string) => {
-    update((st) => ({ ...st, searchSheet: false, auth: { ...st.auth, open: true, kind, step, mob: mob ?? st.auth.mob } }));
+  /** optional sign-in modal; `next` = where to continue after login or "Skip for now" (nothing in the app requires it) */
+  const openAuth = useCallback((kind: "demo" | "login", step: AppState["auth"]["step"] = "signup", next?: string) => {
+    update((st) => ({ ...st, searchSheet: false, auth: { ...st.auth, open: true, kind, step, next } }));
   }, [update]);
 
   const addToCalendar = useCallback(() => toast(`Added to calendar: ${dateLabel(s.pick)}`, "calPlus"), [s.pick, toast]);

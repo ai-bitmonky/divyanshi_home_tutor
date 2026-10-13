@@ -392,6 +392,19 @@ function useSignOut() {
   };
 }
 
+/** shown at the top of the profile card while browsing without an account */
+function GuestLine({ center = false }: { center?: boolean }) {
+  const { openAuth } = useActions();
+  return (
+    <p className="t-sm muted" style={{ margin: "0 0 12px", textAlign: center ? "center" : undefined }}>
+      You&apos;re browsing as a guest ·{" "}
+      <button type="button" className="link" onClick={() => openAuth("login")}>
+        Log in
+      </button>
+    </p>
+  );
+}
+
 export function ProfileScreen() {
   const { s, update } = useApp();
   const { toast } = useActions();
@@ -405,6 +418,7 @@ export function ProfileScreen() {
         <div className="wrap">
           <div className="d-pf">
             <aside className="pf-menu" aria-label="Profile sections">
+              {!s.loggedIn && <GuestLine />}
               <div className="pf-id">
                 <Avatar ini="DA" size={52} g={4} label={USER.name} />
                 <div>
@@ -426,10 +440,14 @@ export function ProfileScreen() {
                   ))}
                 </div>
               ))}
-              <div className="divider" style={{ margin: "10px 0" }} />
-              <button type="button" className="mi danger" onClick={signOut}>
-                <Icon name="logout" size={18} /> Sign Out
-              </button>
+              {s.loggedIn && (
+                <>
+                  <div className="divider" style={{ margin: "10px 0" }} />
+                  <button type="button" className="mi danger" onClick={signOut}>
+                    <Icon name="logout" size={18} /> Sign Out
+                  </button>
+                </>
+              )}
               <div className="ver" style={{ margin: "14px 0 4px" }}>
                 TUTORFORME v2.0
               </div>
@@ -454,6 +472,7 @@ export function ProfileScreen() {
           />
           <div className="m-wrap">
             <div className="pf-head">
+              {!s.loggedIn && <GuestLine center />}
               <Avatar ini="DA" size={88} g={4} ring label={USER.name} />
               <h1>{USER.name}</h1>
               <p>Student · Class 12 · {USER.phone}</p>
@@ -497,9 +516,11 @@ export function ProfileScreen() {
                   </div>
                 </div>
               ))}
-              <button type="button" className="signout" onClick={signOut}>
-                <Icon name="logout" size={18} /> Sign Out
-              </button>
+              {s.loggedIn && (
+                <button type="button" className="signout" onClick={signOut}>
+                  <Icon name="logout" size={18} /> Sign Out
+                </button>
+              )}
               <div className="ver">TUTORFORME v2.0</div>
             </div>
           </div>

@@ -37,6 +37,22 @@ export function useScrollToSection() {
   };
 }
 
+/** optional "Log in" ghost button, or the avatar once logged in (sign-in is never required) */
+export function LoginOrAvatar() {
+  const { s } = useApp();
+  const pathname = usePathname();
+  const { openAuth } = useActions();
+  return s.loggedIn ? (
+    <Link href="/profile" className={`av-btn${pathname === "/profile" ? " on" : ""}`} aria-label="My profile">
+      <Avatar ini="DA" size={38} g={4} label="Divyanshi Agrahari" />
+    </Link>
+  ) : (
+    <button type="button" className="btn btn-g btn-sm" onClick={() => openAuth("login")}>
+      Log in
+    </button>
+  );
+}
+
 const SECTION: [string, string][] = [
   ["/tutors", "find"],
   ["/location", "find"],
@@ -49,12 +65,12 @@ const SECTION: [string, string][] = [
   ["/ai", "ai"],
 ];
 
-/** Desktop sticky header — cream, blurred once scrolled. Logged-out marketing nav on the landing page, app nav elsewhere. */
+/** Desktop sticky header — cream, blurred once scrolled. Marketing nav on the landing page, app nav elsewhere (works logged in or as a guest). */
 function DesktopNav() {
   const pathname = usePathname();
   const scrolled = useScrolled(8);
   const { s } = useApp();
-  const { openAuth, bookTutor } = useActions();
+  const { bookTutor } = useActions();
   const toast = useToast();
   const scrollTo = useScrollToSection();
   const out = pathname === "/";
@@ -77,12 +93,10 @@ function DesktopNav() {
             </button>
           </nav>
           <div className="dnav-r">
-            <button type="button" className="btn btn-g btn-sm" onClick={() => openAuth("login")}>
-              Log in
-            </button>
-            <button type="button" className="btn btn-p btn-sm" onClick={() => openAuth("demo")}>
+            <LoginOrAvatar />
+            <Link href="/tutors" className="btn btn-p btn-sm">
               Book free demo
-            </button>
+            </Link>
           </div>
         </div>
       </header>
@@ -113,9 +127,7 @@ function DesktopNav() {
           <button type="button" className="btn btn-p btn-sm" onClick={() => bookTutor(tutorById(s.tutor))}>
             Book free demo
           </button>
-          <Link href="/profile" className={`av-btn${pathname === "/profile" ? " on" : ""}`} aria-label="My profile">
-            <Avatar ini="DA" size={38} g={4} label="Divyanshi Agrahari" />
-          </Link>
+          <LoginOrAvatar />
         </div>
       </div>
     </header>

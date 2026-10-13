@@ -6,13 +6,12 @@ import { SLIDES, TESTIMONIALS, tutorById } from "@/lib/data";
 import { useActions } from "@/lib/actions";
 import { useReducedMotion } from "@/lib/hooks";
 import { useApp } from "@/lib/store";
-import { Logo, useScrollToSection } from "../AppShell";
+import { LoginOrAvatar, Logo, useScrollToSection } from "../AppShell";
 import { HowIllustration, WelcomeIllustration } from "../Illustration";
 import { Icon } from "../Icons";
 import { Avatar, Star1 } from "../Portrait";
 import { SearchPill, tutorsHref } from "../SearchPill";
 import { SearchSheet } from "../SearchSheet";
-import { SignupCard } from "../SignupModal";
 import { StatStrip } from "../StatStrip";
 import { useToast } from "../Toast";
 import { TutorCard } from "../TutorCard";
@@ -31,7 +30,6 @@ const STEPS: [string, string, string][] = [
 ];
 
 function DesktopLanding() {
-  const { openAuth } = useActions();
   const toast = useToast();
   const scrollTo = useScrollToSection();
   const stack = ["rajesh", "ashish", "priya"].map(tutorById);
@@ -200,9 +198,9 @@ function DesktopLanding() {
               <p className="t-blg">Free demo · ₹0 · No card needed. Switch tutor free, any time.</p>
             </div>
             <div className="row">
-              <button type="button" className="btn btn-p btn-lg" onClick={() => openAuth("demo")}>
+              <Link href="/tutors" className="btn btn-p btn-lg">
                 Book free demo <span className="zero">₹0</span>
-              </button>
+              </Link>
               <Link href="/tutors" className="btn btn-g btn-lg">
                 Browse tutors
               </Link>
@@ -234,10 +232,29 @@ function DesktopLanding() {
   );
 }
 
-/** Mobile welcome: illustration, rotating headline, single search field → sheet, sign-up card */
+/** No-account start card on the mobile welcome — finding tutors is the primary path, log-in is optional */
+function StartCard() {
+  const { openAuth } = useActions();
+  return (
+    <div className="card su-card">
+      <h2 className="su-t">Book a free demo</h2>
+      <p className="su-s">No account needed · ₹0 · No card needed</p>
+      <Link href="/tutors" className="btn btn-p btn-block">
+        Find tutors <Icon name="arrowR" size={18} />
+      </Link>
+      <div className="su-alt">
+        <span className="muted">Have an account?&nbsp;</span>
+        <button type="button" className="link" onClick={() => openAuth("login")}>
+          Log in
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** Mobile welcome: illustration, rotating headline, single search field → sheet, no-account start card */
 function MobileWelcome() {
   const { set } = useApp();
-  const { openAuth } = useActions();
   const rm = useReducedMotion();
   const [slide, setSlide] = useState(0);
   const [fade, setFade] = useState(false);
@@ -268,9 +285,7 @@ function MobileWelcome() {
     <div className="m-welcome">
       <div className="mw-top">
         <Logo href="/" />
-        <button type="button" className="btn btn-g btn-sm" onClick={() => openAuth("login")}>
-          Log in
-        </button>
+        <LoginOrAvatar />
       </div>
       <span className="eyebrow">
         <i className="live" />
@@ -316,7 +331,7 @@ function MobileWelcome() {
           <Icon name="shield" size={15} /> ID-verified
         </span>
       </div>
-      <SignupCard inline />
+      <StartCard />
       <SearchSheet />
     </div>
   );
