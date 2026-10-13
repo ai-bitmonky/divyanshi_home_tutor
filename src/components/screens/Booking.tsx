@@ -11,6 +11,7 @@ import { Icon, type IconName } from "../Icons";
 import { OtpBoxes, ResendTimer } from "../Otp";
 import { Portrait, Star1 } from "../Portrait";
 import { AppBar, ChipGroup, ChipMulti, Crumb, Guar, Tog } from "../ui";
+import { Desktop } from "../Variant";
 
 const BSTEPS = ["Pick a slot", "Student details", "Verify phone", "Done"];
 type Step = AppState["bookStep"];
@@ -327,9 +328,11 @@ export function BookingFlow({ slug }: { slug: string }) {
             <SummaryChips n={n} setStep={setStep} />
             {body}
           </div>
-          <aside className="bk-aside d-only" aria-label="Demo summary">
-            <BookSide t={t} />
-          </aside>
+          <Desktop>
+            <aside className="bk-aside" aria-label="Demo summary">
+              <BookSide t={t} />
+            </aside>
+          </Desktop>
         </div>
       </div>
     </div>

@@ -13,6 +13,7 @@ import { Avatar } from "../Portrait";
 import { Skeletons } from "../Skeleton";
 import { useToast } from "../Toast";
 import { TutorCard } from "../TutorCard";
+import { Desktop, Mobile } from "../Variant";
 
 /** Applies ?subject=&board=&cls=&locality=&mode= deep links (hero search pill) to the filters, once state is hydrated. */
 export function SearchParamsSync() {
@@ -138,7 +139,7 @@ function DesktopTutors() {
   const { s, setF } = useApp();
   const n = filterTutors(s.f).length;
   return (
-    <div className="wrap d-only">
+    <div className="wrap">
       <div className="d-home">
         <aside className="d-side" aria-label="Filters">
           <FiltersBody variant="desktop" />
@@ -205,7 +206,7 @@ function MobileTutors() {
   const toast = useToast();
   const n = filterTutors(s.f).length;
   return (
-    <div className="m-only m-wrap">
+    <div className="m-wrap">
       <div className="m-home-top">
         <div className="row between" style={{ marginBottom: 14 }}>
           <Link href="/" className="logo" aria-label="TutorForMe home">
@@ -281,8 +282,12 @@ function MobileTutors() {
 export function TutorsScreen() {
   return (
     <>
-      <DesktopTutors />
-      <MobileTutors />
+      <Desktop>
+        <DesktopTutors />
+      </Desktop>
+      <Mobile>
+        <MobileTutors />
+      </Mobile>
     </>
   );
 }

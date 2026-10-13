@@ -9,6 +9,7 @@ import { Icon } from "../Icons";
 import { BigStar, Portrait, Star1, Stars } from "../Portrait";
 import { ProgressRing } from "../ProgressRing";
 import { TabHead, Tog } from "../ui";
+import { Desktop } from "../Variant";
 
 function W({ cls = "", span, label, children }: { cls?: string; span: number; label: string; children: ReactNode }) {
   return (
@@ -246,15 +247,17 @@ export function ClassesScreen() {
     <>
       <TabHead title="Classes" right={<RoleTog />} />
       <div className="wrap">
-        <div className="row between d-only" style={{ marginBottom: 24, flexWrap: "wrap", alignItems: "flex-end" }}>
-          <div>
-            <div className="t-cap">{s.role === "parent" ? `Parent view · ${USER.parent}` : `Student view · ${USER.first}`}</div>
-            <h1 className="d-h1" style={{ marginTop: 4 }}>
-              Classes
-            </h1>
+        <Desktop>
+          <div className="row between" style={{ marginBottom: 24, flexWrap: "wrap", alignItems: "flex-end" }}>
+            <div>
+              <div className="t-cap">{s.role === "parent" ? `Parent view · ${USER.parent}` : `Student view · ${USER.first}`}</div>
+              <h1 className="d-h1" style={{ marginTop: 4 }}>
+                Classes
+              </h1>
+            </div>
+            <RoleTog />
           </div>
-          <RoleTog />
-        </div>
+        </Desktop>
         <Dashboard />
       </div>
     </>

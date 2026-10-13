@@ -9,6 +9,7 @@ import { Flag } from "../Illustration";
 import { Icon, type IconName } from "../Icons";
 import { Avatar } from "../Portrait";
 import { TabHead } from "../ui";
+import { Desktop, Mobile } from "../Variant";
 
 type PrefKey = "sms" | "wa" | "mail" | "report";
 
@@ -400,106 +401,110 @@ export function ProfileScreen() {
   return (
     <>
       {/* desktop: side menu + panels */}
-      <div className="wrap d-only">
-        <div className="d-pf">
-          <aside className="pf-menu" aria-label="Profile sections">
-            <div className="pf-id">
-              <Avatar ini="DA" size={52} g={4} label={USER.name} />
-              <div>
-                <b>{USER.name}</b>
-                <span>{USER.phone}</span>
-              </div>
-            </div>
-            <button type="button" className={`mi${tab === "edu" ? " on" : ""}`} aria-current={tab === "edu" ? "true" : undefined} onClick={() => update((st) => ({ ...st, pf: { ...st.pf, tab: "edu", edit: false } }))}>
-              <Icon name="grad" size={18} /> Educational Details
-            </button>
-            {MENU.map(([g, items]) => (
-              <div key={g}>
-                <div className="grp">{g}</div>
-                {items.map(([k, i, l]) => (
-                  <button key={k} type="button" className={`mi${tab === k ? " on" : ""}`} aria-current={tab === k ? "true" : undefined} onClick={() => update((st) => ({ ...st, pf: { ...st.pf, tab: k, edit: false } }))}>
-                    <Icon name={i} size={18} /> {l}
-                    {k === "wallet" && <em>{inr(USER.wallet)}</em>}
-                  </button>
-                ))}
-              </div>
-            ))}
-            <div className="divider" style={{ margin: "10px 0" }} />
-            <button type="button" className="mi danger" onClick={signOut}>
-              <Icon name="logout" size={18} /> Sign Out
-            </button>
-            <div className="ver" style={{ margin: "14px 0 4px" }}>
-              TUTORFORME v2.0
-            </div>
-          </aside>
-          <section aria-live="polite">
-            <PfPanel tab={tab} />
-          </section>
-        </div>
-      </div>
-
-      {/* mobile: header + list (rows expand into their panel) */}
-      <div className="m-only">
-        <TabHead
-          title="My Profile"
-          right={
-            <button type="button" className="icbtn" aria-label="Settings" onClick={() => toast("Settings", "sliders")}>
-              <Icon name="sliders" size={19} />
-            </button>
-          }
-        />
-        <div className="m-wrap">
-          <div className="pf-head">
-            <Avatar ini="DA" size={88} g={4} ring label={USER.name} />
-            <h1>{USER.name}</h1>
-            <p>Student · Class 12 · {USER.phone}</p>
-            <span className="badge badge-t" style={{ marginTop: 8 }}>
-              <Icon name="family" size={13} /> Parent: {USER.parent}
-            </span>
-          </div>
-          <div className="pf-sec">
-            <div className="card" style={{ marginTop: 18 }}>
-              <div className="row between">
-                <span className="ovl">Educational Details</span>
-                <EduEditBtn />
-              </div>
-              <EduGrid />
-            </div>
-            {MENU.map(([g, items]) => (
-              <div key={g}>
-                <div className="ovl" style={{ margin: "22px 0 10px" }}>
-                  {g}
+      <Desktop>
+        <div className="wrap">
+          <div className="d-pf">
+            <aside className="pf-menu" aria-label="Profile sections">
+              <div className="pf-id">
+                <Avatar ini="DA" size={52} g={4} label={USER.name} />
+                <div>
+                  <b>{USER.name}</b>
+                  <span>{USER.phone}</span>
                 </div>
-                <div className="list">
+              </div>
+              <button type="button" className={`mi${tab === "edu" ? " on" : ""}`} aria-current={tab === "edu" ? "true" : undefined} onClick={() => update((st) => ({ ...st, pf: { ...st.pf, tab: "edu", edit: false } }))}>
+                <Icon name="grad" size={18} /> Educational Details
+              </button>
+              {MENU.map(([g, items]) => (
+                <div key={g}>
+                  <div className="grp">{g}</div>
                   {items.map(([k, i, l]) => (
-                    <div key={k}>
-                      <button type="button" className="lrow" aria-expanded={openRow === k} onClick={() => setOpenRow(openRow === k ? null : k)}>
-                        <span className="lic">
-                          <Icon name={i} size={18} />
-                        </span>
-                        <span className="lt">{l}</span>
-                        {k === "wallet" && <b style={{ color: "var(--teal-d)", fontSize: 14 }}>{inr(USER.wallet)}</b>}
-                        <span className="chev" style={{ transform: openRow === k ? "rotate(90deg)" : undefined, transition: "transform .2s" }}>
-                          <Icon name="chevR" size={18} />
-                        </span>
-                      </button>
-                      {openRow === k && (
-                        <div className="pf-inline">
-                          <PfPanel tab={k} />
-                        </div>
-                      )}
-                    </div>
+                    <button key={k} type="button" className={`mi${tab === k ? " on" : ""}`} aria-current={tab === k ? "true" : undefined} onClick={() => update((st) => ({ ...st, pf: { ...st.pf, tab: k, edit: false } }))}>
+                      <Icon name={i} size={18} /> {l}
+                      {k === "wallet" && <em>{inr(USER.wallet)}</em>}
+                    </button>
                   ))}
                 </div>
+              ))}
+              <div className="divider" style={{ margin: "10px 0" }} />
+              <button type="button" className="mi danger" onClick={signOut}>
+                <Icon name="logout" size={18} /> Sign Out
+              </button>
+              <div className="ver" style={{ margin: "14px 0 4px" }}>
+                TUTORFORME v2.0
               </div>
-            ))}
-            <button type="button" className="signout" onClick={signOut}>
-              <Icon name="logout" size={18} /> Sign Out
-            </button>
-            <div className="ver">TUTORFORME v2.0</div>
+            </aside>
+            <section aria-live="polite">
+              <PfPanel tab={tab} />
+            </section>
           </div>
         </div>
-      </div>
+      </Desktop>
+
+      {/* mobile: header + list (rows expand into their panel) */}
+      <Mobile>
+        <div>
+          <TabHead
+            title="My Profile"
+            right={
+              <button type="button" className="icbtn" aria-label="Settings" onClick={() => toast("Settings", "sliders")}>
+                <Icon name="sliders" size={19} />
+              </button>
+            }
+          />
+          <div className="m-wrap">
+            <div className="pf-head">
+              <Avatar ini="DA" size={88} g={4} ring label={USER.name} />
+              <h1>{USER.name}</h1>
+              <p>Student · Class 12 · {USER.phone}</p>
+              <span className="badge badge-t" style={{ marginTop: 8 }}>
+                <Icon name="family" size={13} /> Parent: {USER.parent}
+              </span>
+            </div>
+            <div className="pf-sec">
+              <div className="card" style={{ marginTop: 18 }}>
+                <div className="row between">
+                  <span className="ovl">Educational Details</span>
+                  <EduEditBtn />
+                </div>
+                <EduGrid />
+              </div>
+              {MENU.map(([g, items]) => (
+                <div key={g}>
+                  <div className="ovl" style={{ margin: "22px 0 10px" }}>
+                    {g}
+                  </div>
+                  <div className="list">
+                    {items.map(([k, i, l]) => (
+                      <div key={k}>
+                        <button type="button" className="lrow" aria-expanded={openRow === k} onClick={() => setOpenRow(openRow === k ? null : k)}>
+                          <span className="lic">
+                            <Icon name={i} size={18} />
+                          </span>
+                          <span className="lt">{l}</span>
+                          {k === "wallet" && <b style={{ color: "var(--teal-d)", fontSize: 14 }}>{inr(USER.wallet)}</b>}
+                          <span className="chev" style={{ transform: openRow === k ? "rotate(90deg)" : undefined, transition: "transform .2s" }}>
+                            <Icon name="chevR" size={18} />
+                          </span>
+                        </button>
+                        {openRow === k && (
+                          <div className="pf-inline">
+                            <PfPanel tab={k} />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <button type="button" className="signout" onClick={signOut}>
+                <Icon name="logout" size={18} /> Sign Out
+              </button>
+              <div className="ver">TUTORFORME v2.0</div>
+            </div>
+          </div>
+        </div>
+      </Mobile>
     </>
   );
 }

@@ -4,10 +4,12 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { REPLIES, type Convo } from "@/lib/data";
 import { useActions } from "@/lib/actions";
+import { DESKTOP_MQ, useViewportMode } from "@/lib/hooks";
 import { useApp } from "@/lib/store";
 import { Icon } from "../Icons";
 import { Avatar } from "../Portrait";
 import { TabHead, useBack } from "../ui";
+import { Desktop, Mobile } from "../Variant";
 
 function ChatHead({ c, mobile }: { c: Convo; mobile?: boolean }) {
   const { toast } = useActions();
@@ -152,56 +154,64 @@ export function ChatScreen({ id }: { id?: string }) {
   const thread = useRef<HTMLDivElement>(null);
   const count = c.msgs.length + (s.typing === key ? 1 : 0);
 
+  /* `mode` is a dep so the newly mounted variant is scrolled to the latest message after a resize across 900px */
+  const mode = useViewportMode();
   useEffect(() => {
     const el = thread.current;
     if (el) el.scrollTop = el.scrollHeight;
-    if (id && window.matchMedia("(max-width: 899px)").matches) window.scrollTo({ top: document.body.scrollHeight });
-  }, [count, key, id]);
+    if (id && !window.matchMedia(DESKTOP_MQ).matches) window.scrollTo({ top: document.body.scrollHeight });
+  }, [count, key, id, mode]);
 
   return (
     <>
       {/* desktop */}
-      <div className="wrap d-only" style={{ paddingBottom: 28 }}>
-        <div className="d-chat">
-          <aside className="cl" aria-label="Conversations">
-            <div className="cl-h">
-              <b>Chats</b>
-              <div className="iw">
-                <Icon name="search" size={16} />
-                <input className="inp" placeholder="Search conversations" aria-label="Search conversations" />
+      <Desktop>
+        <div className="wrap" style={{ paddingBottom: 28 }}>
+          <div className="d-chat">
+            <aside className="cl" aria-label="Conversations">
+              <div className="cl-h">
+                <b>Chats</b>
+                <div className="iw">
+                  <Icon name="search" size={16} />
+                  <input className="inp" placeholder="Search conversations" aria-label="Search conversations" />
+                </div>
               </div>
-            </div>
-            <ConvoList active={key} desktop />
-          </aside>
-          <section className="th" aria-label={`Conversation with ${c.name}`}>
-            <ChatHead c={c} />
-            <div className="th-scroll" ref={thread}>
-              <Bubbles id={key} c={c} />
-            </div>
-            <Composer inputId="msg-d" placeholder="Ask your question…" onSend={(t) => sendMsg(key, t)} />
-          </section>
+              <ConvoList active={key} desktop />
+            </aside>
+            <section className="th" aria-label={`Conversation with ${c.name}`}>
+              <ChatHead c={c} />
+              <div className="th-scroll" ref={thread}>
+                <Bubbles id={key} c={c} />
+              </div>
+              <Composer inputId="msg-d" placeholder="Ask your question…" onSend={(t) => sendMsg(key, t)} />
+            </section>
+          </div>
         </div>
-      </div>
+      </Desktop>
       {/* mobile */}
       {id ? (
-        <div className="m-only m-chat">
-          <div className="m-chat-head">
-            <ChatHead c={c} mobile />
-          </div>
-          <Bubbles id={key} c={c} />
-          <div className="m-composer">
-            <Composer inputId="msg-m" placeholder="Ask your question…" onSend={(t) => sendMsg(key, t)} />
-          </div>
-        </div>
-      ) : (
-        <div className="m-only">
-          <TabHead title="Chats" />
-          <div className="m-wrap px">
-            <div className="list m-clist">
-              <ConvoList />
+        <Mobile>
+          <div className="m-chat">
+            <div className="m-chat-head">
+              <ChatHead c={c} mobile />
+            </div>
+            <Bubbles id={key} c={c} />
+            <div className="m-composer">
+              <Composer inputId="msg-m" placeholder="Ask your question…" onSend={(t) => sendMsg(key, t)} />
             </div>
           </div>
-        </div>
+        </Mobile>
+      ) : (
+        <Mobile>
+          <div>
+            <TabHead title="Chats" />
+            <div className="m-wrap px">
+              <div className="list m-clist">
+                <ConvoList />
+              </div>
+            </div>
+          </div>
+        </Mobile>
       )}
     </>
   );

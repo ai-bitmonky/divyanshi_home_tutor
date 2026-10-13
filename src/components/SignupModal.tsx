@@ -9,6 +9,7 @@ import { Icon } from "./Icons";
 import { OtpBoxes, ResendTimer } from "./Otp";
 import { Avatar } from "./Portrait";
 import { useToast } from "./Toast";
+import { Desktop, Mobile } from "./Variant";
 
 /** Sign-up card: mobile number (+91) or email → Send OTP. Used inline on the mobile welcome and inside the modal. */
 export function SignupCard({ inline = false, inModal = false }: { inline?: boolean; inModal?: boolean }) {
@@ -79,16 +80,18 @@ export function SignupCard({ inline = false, inModal = false }: { inline?: boole
         </button>
       </div>
       {!inline && (
-        <p className="fine d-only">
-          By continuing, you agree to our{" "}
-          <button type="button" onClick={() => toast("Terms of Service opened")}>
-            Terms
-          </button>{" "}
-          &amp;{" "}
-          <button type="button" onClick={() => toast("Privacy Policy opened")}>
-            Privacy Policy
-          </button>
-        </p>
+        <Desktop>
+          <p className="fine">
+            By continuing, you agree to our{" "}
+            <button type="button" onClick={() => toast("Terms of Service opened")}>
+              Terms
+            </button>{" "}
+            &amp;{" "}
+            <button type="button" onClick={() => toast("Privacy Policy opened")}>
+              Privacy Policy
+            </button>
+          </p>
+        </Desktop>
       )}
     </div>
   );
@@ -181,7 +184,9 @@ export function SignupModal() {
     <div className="ov">
       <div className="scrim" onClick={close} aria-hidden="true" />
       <div className="modal sheet-m" role="dialog" aria-modal="true" aria-labelledby={label} ref={box}>
-        <div className="grab m-only" aria-hidden="true" />
+        <Mobile>
+          <div className="grab" aria-hidden="true" />
+        </Mobile>
         <button type="button" className="icbtn flat x" aria-label="Close" onClick={close}>
           <Icon name="x" size={18} />
         </button>

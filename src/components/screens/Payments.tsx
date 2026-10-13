@@ -10,6 +10,7 @@ import { OkCheck } from "../Illustration";
 import { Icon, type IconName } from "../Icons";
 import { Portrait } from "../Portrait";
 import { AppBar, Crumb, Guar, Spinner } from "../ui";
+import { Desktop, Mobile } from "../Variant";
 
 /* ---------------- Plans ---------------- */
 function PlanCards() {
@@ -84,24 +85,28 @@ export function PlansScreen() {
             <div style={{ flex: 1, minWidth: 260 }}>
               <Guar>not happy after any class? Switch tutor free.</Guar>
             </div>
-            <Link href="/checkout" className="btn btn-p btn-lg d-only">
-              Continue · {inr(p)} <Icon name="arrowR" size={18} />
-            </Link>
+            <Desktop>
+              <Link href="/checkout" className="btn btn-p btn-lg">
+                Continue · {inr(p)} <Icon name="arrowR" size={18} />
+              </Link>
+            </Desktop>
           </div>
         </div>
       </div>
-      <div className="mbot m-only">
-        <div className="pr">
-          <small>{s.plan} classes</small>
-          <b>
-            {inr(p)}
-            <span> / month</span>
-          </b>
+      <Mobile>
+        <div className="mbot">
+          <div className="pr">
+            <small>{s.plan} classes</small>
+            <b>
+              {inr(p)}
+              <span> / month</span>
+            </b>
+          </div>
+          <Link href="/checkout" className="btn btn-p">
+            Continue <Icon name="arrowR" size={18} />
+          </Link>
         </div>
-        <Link href="/checkout" className="btn btn-p">
-          Continue <Icon name="arrowR" size={18} />
-        </Link>
-      </div>
+      </Mobile>
     </>
   );
 }
@@ -307,31 +312,39 @@ export function CheckoutScreen() {
       <AppBar title="Checkout" back="/plans" />
       <div className="wrap">
         <Crumb items={[["Classes", "/classes"], ["Choose a plan", "/plans"], ["Checkout"]]} back="/plans" />
-        <h1 className="d-h1 d-only" style={{ marginBottom: 20 }}>
-          Checkout
-        </h1>
+        <Desktop>
+          <h1 className="d-h1" style={{ marginBottom: 20 }}>
+            Checkout
+          </h1>
+        </Desktop>
         <div className="d-co">
-          <div className="co-sum-m m-only">
-            <PaySummary />
-          </div>
+          <Mobile>
+            <div className="co-sum-m">
+              <PaySummary />
+            </div>
+          </Mobile>
           <div className="panel co-methods">
             <h2 className="ph3">How do you want to pay?</h2>
             <PayMethods />
           </div>
-          <aside className="d-co-r d-only">
-            <div className="panel">
-              <PaySummary />
-              <div style={{ marginTop: 16 }}>
-                <PayButton />
+          <Desktop>
+            <aside className="d-co-r">
+              <div className="panel">
+                <PaySummary />
+                <div style={{ marginTop: 16 }}>
+                  <PayButton />
+                </div>
+                {terms}
               </div>
-              {terms}
-            </div>
-          </aside>
+            </aside>
+          </Desktop>
         </div>
       </div>
-      <div className="mbot col m-only">
-        <PayButton />
-      </div>
+      <Mobile>
+        <div className="mbot col">
+          <PayButton />
+        </div>
+      </Mobile>
     </>
   );
 }
@@ -352,11 +365,13 @@ export function PaidScreen() {
   ];
   return (
     <>
-      <div className="appbar m-only" style={{ justifyContent: "flex-end" }}>
-        <Link href="/classes" className="icbtn" aria-label="Close">
-          <Icon name="x" size={20} />
-        </Link>
-      </div>
+      <Mobile>
+        <div className="appbar" style={{ justifyContent: "flex-end" }}>
+          <Link href="/classes" className="icbtn" aria-label="Close">
+            <Icon name="x" size={20} />
+          </Link>
+        </div>
+      </Mobile>
       <div className="wrap">
         <div className="d-cf">
           <div className="bstep succ" role="status">

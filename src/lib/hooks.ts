@@ -22,6 +22,24 @@ export function useReducedMotion(): boolean {
   );
 }
 
+/** the one breakpoint: desktop layout at ≥ 900px (matches .m-only / .d-only in globals.css) */
+export const DESKTOP_MQ = "(min-width: 900px)";
+const subDesktop = subscribeMedia(DESKTOP_MQ);
+
+export type ViewportMode = "mobile" | "desktop";
+
+/**
+ * "mobile" | "desktop" from DESKTOP_MQ. `null` on the server and during hydration
+ * (server snapshot), so callers can fall back to the CSS-only .m-only / .d-only gating.
+ */
+export function useViewportMode(): ViewportMode | null {
+  return useSyncExternalStore<ViewportMode | null>(
+    subDesktop,
+    () => (window.matchMedia(DESKTOP_MQ).matches ? "desktop" : "mobile"),
+    () => null,
+  );
+}
+
 export function prefersReducedMotion(): boolean {
   try {
     return window.matchMedia(RM).matches;

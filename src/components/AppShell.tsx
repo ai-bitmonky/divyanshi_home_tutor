@@ -10,6 +10,7 @@ import { useApp } from "@/lib/store";
 import { Icon, type IconName } from "./Icons";
 import { Avatar } from "./Portrait";
 import { SignupModal } from "./SignupModal";
+import { Desktop, Mobile } from "./Variant";
 import { useToast } from "./Toast";
 
 export function Logo({ href, className = "" }: { href: string; className?: string }) {
@@ -60,7 +61,7 @@ function DesktopNav() {
 
   if (out)
     return (
-      <header className={`dnav d-only${scrolled ? " scrolled" : ""}`}>
+      <header className={`dnav${scrolled ? " scrolled" : ""}`}>
         <div className="in">
           <Logo href="/" />
           <nav className="dlinks" aria-label="Site">
@@ -95,7 +96,7 @@ function DesktopNav() {
     ["ai", "AI help", "/ai"],
   ];
   return (
-    <header className={`dnav d-only${scrolled ? " scrolled" : ""}`}>
+    <header className={`dnav${scrolled ? " scrolled" : ""}`}>
       <div className="in">
         <Logo href="/tutors" />
         <nav className="dlinks" aria-label="Main">
@@ -149,7 +150,7 @@ function TabBar() {
     { id: "profile", label: "Profile", icon: "user", iconOn: "userF", on: pathname === "/profile", href: "/profile" },
   ];
   return (
-    <nav className="tabbar m-only" aria-label="Main">
+    <nav className="tabbar" aria-label="Main">
       {items.map((it) => {
         const inner = (
           <>
@@ -191,13 +192,17 @@ export function AppShell({ children }: { children: ReactNode }) {
         Skip to content
       </a>
       <Suspense fallback={null}>
-        <DesktopNav />
+        <Desktop>
+          <DesktopNav />
+        </Desktop>
       </Suspense>
       <main id="main" className="app-main">
         {children}
       </main>
       <Suspense fallback={null}>
-        <TabBar />
+        <Mobile>
+          <TabBar />
+        </Mobile>
       </Suspense>
       <SignupModal />
     </>

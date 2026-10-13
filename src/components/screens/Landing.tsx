@@ -16,6 +16,7 @@ import { SignupCard } from "../SignupModal";
 import { StatStrip } from "../StatStrip";
 import { useToast } from "../Toast";
 import { TutorCard } from "../TutorCard";
+import { Desktop, Mobile } from "../Variant";
 
 const QUICK: [string, string][] = [
   ["Maths", "Maths · Class 10"],
@@ -35,7 +36,7 @@ function DesktopLanding() {
   const scrollTo = useScrollToSection();
   const stack = ["rajesh", "ashish", "priya"].map(tutorById);
   return (
-    <div className="lp d-only">
+    <div className="lp">
       <section className="hero">
         <div className="hero-l">
           <span className="eyebrow">
@@ -264,7 +265,7 @@ function MobileWelcome() {
 
   const s = SLIDES[slide];
   return (
-    <div className="m-welcome m-only">
+    <div className="m-welcome">
       <div className="mw-top">
         <Logo href="/" />
         <button type="button" className="btn btn-g btn-sm" onClick={() => openAuth("login")}>
@@ -324,8 +325,12 @@ function MobileWelcome() {
 export function Landing() {
   return (
     <>
-      <DesktopLanding />
-      <MobileWelcome />
+      <Desktop>
+        <DesktopLanding />
+      </Desktop>
+      <Mobile>
+        <MobileWelcome />
+      </Mobile>
     </>
   );
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Fragment, type ButtonHTMLAttributes, type ReactNode } from "react";
 import { Icon, type IconName } from "./Icons";
+import { Desktop, Mobile } from "./Variant";
 
 /* ---------- Button: teal is the only action fill ---------- */
 type Variant = "p" | "s" | "g" | "n" | "w" | "amber";
@@ -115,23 +116,27 @@ export function useBack(fallback: string) {
 export function AppBar({ title, back = "/tutors", right }: { title: ReactNode; back?: string; right?: ReactNode }) {
   const goBack = useBack(back);
   return (
-    <div className="appbar m-only">
-      <button type="button" className="icbtn" aria-label="Go back" onClick={goBack}>
-        <Icon name="back" size={20} />
-      </button>
-      <h1>{title}</h1>
-      {right}
-    </div>
+    <Mobile>
+      <div className="appbar">
+        <button type="button" className="icbtn" aria-label="Go back" onClick={goBack}>
+          <Icon name="back" size={20} />
+        </button>
+        <h1>{title}</h1>
+        {right}
+      </div>
+    </Mobile>
   );
 }
 
 /** Mobile tab-page header (large title) */
 export function TabHead({ title, right }: { title: string; right?: ReactNode }) {
   return (
-    <div className="appbar tabhead m-only">
-      <h1>{title}</h1>
-      {right}
-    </div>
+    <Mobile>
+      <div className="appbar tabhead">
+        <h1>{title}</h1>
+        {right}
+      </div>
+    </Mobile>
   );
 }
 
@@ -139,23 +144,25 @@ export function TabHead({ title, right }: { title: string; right?: ReactNode }) 
 export function Crumb({ items, back = "/tutors" }: { items: [string, string?][]; back?: string }) {
   const goBack = useBack(back);
   return (
-    <nav className="crumb d-only" aria-label="Breadcrumb">
-      <button type="button" className="back" onClick={goBack}>
-        <Icon name="back" size={16} /> Back
-      </button>
-      {items.map(([label, href], i) =>
-        i < items.length - 1 && href ? (
-          <Fragment key={label}>
-            <Link href={href}>{label}</Link>
-            <Icon name="chevR" size={14} />
-          </Fragment>
-        ) : (
-          <span key={label} style={{ color: "var(--navy)", fontWeight: 600 }} aria-current="page">
-            {label}
-          </span>
-        ),
-      )}
-    </nav>
+    <Desktop>
+      <nav className="crumb" aria-label="Breadcrumb">
+        <button type="button" className="back" onClick={goBack}>
+          <Icon name="back" size={16} /> Back
+        </button>
+        {items.map(([label, href], i) =>
+          i < items.length - 1 && href ? (
+            <Fragment key={label}>
+              <Link href={href}>{label}</Link>
+              <Icon name="chevR" size={14} />
+            </Fragment>
+          ) : (
+            <span key={label} style={{ color: "var(--navy)", fontWeight: 600 }} aria-current="page">
+              {label}
+            </span>
+          ),
+        )}
+      </nav>
+    </Desktop>
   );
 }
 

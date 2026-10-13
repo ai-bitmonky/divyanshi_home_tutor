@@ -6,6 +6,7 @@ import { useApp } from "@/lib/store";
 import { Icon } from "./Icons";
 import { useToast } from "./Toast";
 import { Button, ChipGroup, Tog } from "./ui";
+import { Mobile } from "./Variant";
 
 const DISTS = ["3", "5", "10"] as const;
 const BOARDS = ["Any", "CBSE", "ICSE", "State"] as const;
@@ -159,42 +160,44 @@ export function FiltersSheet() {
   if (!s.filtersOpen) return null;
   const n = filterTutors(s.f).length;
   return (
-    <div className="fsheet m-only" role="dialog" aria-modal="true" aria-labelledby="fsT">
-      <div className="appbar" style={{ paddingLeft: 20 }}>
-        <button type="button" className="icbtn" aria-label="Close filters" onClick={() => set({ filtersOpen: false })}>
-          <Icon name="x" size={20} />
-        </button>
-        <h1 id="fsT">Search</h1>
-        <button
-          type="button"
-          className="link"
-          style={{ padding: 8 }}
-          onClick={() => {
-            set({ f: { ...s.f, ...RESET } });
-            toast("Filters reset", "refresh");
-          }}
-        >
-          Reset
-        </button>
-      </div>
-      <div className="fs-scroll">
-        <div className="px" style={{ paddingTop: 4 }}>
-          <FiltersBody variant="mobile" />
+    <Mobile>
+      <div className="fsheet" role="dialog" aria-modal="true" aria-labelledby="fsT">
+        <div className="appbar" style={{ paddingLeft: 20 }}>
+          <button type="button" className="icbtn" aria-label="Close filters" onClick={() => set({ filtersOpen: false })}>
+            <Icon name="x" size={20} />
+          </button>
+          <h1 id="fsT">Search</h1>
+          <button
+            type="button"
+            className="link"
+            style={{ padding: 8 }}
+            onClick={() => {
+              set({ f: { ...s.f, ...RESET } });
+              toast("Filters reset", "refresh");
+            }}
+          >
+            Reset
+          </button>
+        </div>
+        <div className="fs-scroll">
+          <div className="px" style={{ paddingTop: 4 }}>
+            <FiltersBody variant="mobile" />
+          </div>
+        </div>
+        <div className="mbot static">
+          <Button
+            block
+            onClick={() => {
+              set({ filtersOpen: false });
+              toast(`${n} tutor${n === 1 ? "" : "s"} match your filters`, "search");
+              window.scrollTo({ top: 0 });
+            }}
+          >
+            {n ? `Show ${n} tutor${n === 1 ? "" : "s"}` : "No tutors — widen search"}
+          </Button>
         </div>
       </div>
-      <div className="mbot static">
-        <Button
-          block
-          onClick={() => {
-            set({ filtersOpen: false });
-            toast(`${n} tutor${n === 1 ? "" : "s"} match your filters`, "search");
-            window.scrollTo({ top: 0 });
-          }}
-        >
-          {n ? `Show ${n} tutor${n === 1 ? "" : "s"}` : "No tutors — widen search"}
-        </Button>
-      </div>
-    </div>
+    </Mobile>
   );
 }
 

@@ -11,6 +11,7 @@ import { Avatar, Portrait, Star1, Stars } from "../Portrait";
 import { RatingBars } from "../RatingBars";
 import { AppBar, Crumb, Guar } from "../ui";
 import type { Tutor } from "@/lib/data";
+import { Desktop, Mobile } from "../Variant";
 
 function scrollToId(id: string) {
   const el = document.getElementById(id);
@@ -105,14 +106,16 @@ function ProfHead({ t }: { t: Tutor }) {
               <Icon name="clock" size={15} /> Last active today · replies in {t.replyTime}
             </span>
           </div>
-          <div className="ph-act m-only">
-            <button type="button" className={`icbtn${fav ? " on" : ""}`} aria-pressed={fav} aria-label="Save tutor" onClick={() => toggleFav(t.id)}>
-              <Icon name={fav ? "heartF" : "heart"} size={19} />
-            </button>
-            <button type="button" className="icbtn" aria-label="Share profile" onClick={() => toast("Profile link copied", "share")}>
-              <Icon name="share" size={19} />
-            </button>
-          </div>
+          <Mobile>
+            <div className="ph-act">
+              <button type="button" className={`icbtn${fav ? " on" : ""}`} aria-pressed={fav} aria-label="Save tutor" onClick={() => toggleFav(t.id)}>
+                <Icon name={fav ? "heartF" : "heart"} size={19} />
+              </button>
+              <button type="button" className="icbtn" aria-label="Share profile" onClick={() => toast("Profile link copied", "share")}>
+                <Icon name="share" size={19} />
+              </button>
+            </div>
+          </Mobile>
         </div>
       </div>
       <div className="vlist-h">
@@ -392,12 +395,14 @@ export function TutorProfile({ slug }: { slug: string }) {
               <Heatmap heat={t.availability} />
               <TimeChips heat={t.availability} />
               <Picked />
-              <div className="m-only">
-                <div className="lbl" style={{ marginTop: 16 }}>
-                  Or take a next open slot
+              <Mobile>
+                <div>
+                  <div className="lbl" style={{ marginTop: 16 }}>
+                    Or take a next open slot
+                  </div>
+                  <NextSlotChips heat={t.availability} />
                 </div>
-                <NextSlotChips heat={t.availability} />
-              </div>
+              </Mobile>
             </Sec>
             <Sec id="rt" title="Ratings">
               <RatingBars t={t} />
@@ -425,40 +430,44 @@ export function TutorProfile({ slug }: { slug: string }) {
               <Similar t={t} />
             </Sec>
           </div>
-          <aside className="bk-aside d-only" aria-label="Book a demo">
-            <BookCard t={t} />
-          </aside>
+          <Desktop>
+            <aside className="bk-aside" aria-label="Book a demo">
+              <BookCard t={t} />
+            </aside>
+          </Desktop>
         </div>
       </div>
-      <div className="mbot m-only">
-        {full ? (
-          <>
-            <div className="pr">
-              <small>Per class</small>
-              <b>
-                {inr(t.pricePerClass)}
-                <span> / 60-min</span>
-              </b>
-            </div>
-            <button type="button" className="btn btn-s" onClick={() => scrollToId("simP")}>
-              See similar
-            </button>
-          </>
-        ) : (
-          <>
-            <div className="pr">
-              <small>Free demo · then</small>
-              <b>
-                {inr(t.pricePerClass)}
-                <span> / 60-min</span>
-              </b>
-            </div>
-            <button type="button" className="btn btn-p" onClick={() => bookTutor(t)}>
-              Book free demo
-            </button>
-          </>
-        )}
-      </div>
+      <Mobile>
+        <div className="mbot">
+          {full ? (
+            <>
+              <div className="pr">
+                <small>Per class</small>
+                <b>
+                  {inr(t.pricePerClass)}
+                  <span> / 60-min</span>
+                </b>
+              </div>
+              <button type="button" className="btn btn-s" onClick={() => scrollToId("simP")}>
+                See similar
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="pr">
+                <small>Free demo · then</small>
+                <b>
+                  {inr(t.pricePerClass)}
+                  <span> / 60-min</span>
+                </b>
+              </div>
+              <button type="button" className="btn btn-p" onClick={() => bookTutor(t)}>
+                Book free demo
+              </button>
+            </>
+          )}
+        </div>
+      </Mobile>
     </div>
   );
 }
